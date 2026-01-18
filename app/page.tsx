@@ -23,9 +23,13 @@ function PageContent() {
 
       {hasEvents && <TimelineHeader />}
 
-      <div className="relative z-10 w-full max-w-6xl">
-        {hasEvents ? <Timeline /> : <EmptyState />}
-      </div>
+      {hasEvents ? (
+        <Timeline />
+      ) : (
+        <div className="relative z-10 w-full max-w-6xl">
+          <EmptyState />
+        </div>
+      )}
 
       {hasEvents && (
         <>

@@ -54,10 +54,10 @@ export function ChatPanel() {
     const eventId = crypto.randomUUID();
     const description = input;
 
-    // Calculate position for new event (offset from previous events)
+    // Calculate position for new event (horizontal line)
     const existingCount = events.length;
-    const baseX = 400 + (existingCount % 4) * 200;
-    const baseY = 300 + Math.floor(existingCount / 4) * 180;
+    const baseX = 100 + existingCount * 200;
+    const baseY = 200;
 
     const newEvent: TimelineEvent = {
       id: eventId,
