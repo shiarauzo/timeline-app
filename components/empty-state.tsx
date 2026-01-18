@@ -50,6 +50,7 @@ export function EmptyState() {
       description,
       timestamp: undefined,
       dateConfirmed: false,
+      position: { x: 400, y: 300 },
     };
 
     addEvent(newEvent);

@@ -54,6 +54,11 @@ export function ChatPanel() {
     const eventId = crypto.randomUUID();
     const description = input;
 
+    // Calculate position for new event (offset from previous events)
+    const existingCount = events.length;
+    const baseX = 400 + (existingCount % 4) * 200;
+    const baseY = 300 + Math.floor(existingCount / 4) * 180;
+
     const newEvent: TimelineEvent = {
       id: eventId,
       year: "",
@@ -61,6 +66,7 @@ export function ChatPanel() {
       description,
       timestamp: undefined,
       dateConfirmed: false,
+      position: { x: baseX, y: baseY },
     };
 
     addEvent(newEvent);
