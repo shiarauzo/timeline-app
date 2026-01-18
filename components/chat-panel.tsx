@@ -21,18 +21,36 @@ export function ChatPanel() {
   const [yearInput, setYearInput] = useState("");
   const { events, addEvent, updateEvent } = useTimeline();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const generateTitle = async (description: string): Promise<string> => {
+    try {
+      const res = await fetch("/api/generate-title", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description }),
+      });
+      if (!res.ok) throw new Error("Failed to generate title");
+      const data = await res.json();
+      return data.title || description.slice(0, 50);
+    } catch {
+      return description.length > 50
+        ? description.slice(0, 50) + "..."
+        : description;
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
 
     const parsed = parseDate(input);
     const eventId = crypto.randomUUID();
+    const description = input;
 
     const newEvent: TimelineEvent = {
       id: eventId,
       year: parsed?.year ?? "",
-      title: input.length > 50 ? input.slice(0, 50) + "..." : input,
-      description: input,
+      title: "Generando título...",
+      description,
       timestamp: parsed?.timestamp,
       dateConfirmed: parsed !== null,
     };
@@ -40,9 +58,12 @@ export function ChatPanel() {
     addEvent(newEvent);
     setMessages((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), text: input, eventId },
+      { id: crypto.randomUUID(), text: description, eventId },
     ]);
     setInput("");
+
+    const title = await generateTitle(description);
+    updateEvent(eventId, { title });
   };
 
   const handleYearSubmit = (eventId: string) => {
