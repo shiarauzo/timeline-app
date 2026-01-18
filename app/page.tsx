@@ -1,5 +1,6 @@
 import { Timeline } from "@/components/timeline";
 import { ChatPanel } from "@/components/chat-panel";
+import { ZoomControls } from "@/components/zoom-controls";
 import { TimelineProvider } from "@/lib/timeline-context";
 
 export default function Page() {
@@ -22,6 +23,7 @@ export default function Page() {
         </div>
 
         <ChatPanel />
+        <ZoomControls />
       </main>
     </TimelineProvider>
   );

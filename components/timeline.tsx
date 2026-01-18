@@ -6,7 +6,7 @@ import { useTimeline } from "@/lib/timeline-context";
 
 export function Timeline() {
   const [isVisible, setIsVisible] = useState(false);
-  const { events, reorderEvents } = useTimeline();
+  const { events, reorderEvents, zoom } = useTimeline();
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
 
@@ -79,7 +79,10 @@ export function Timeline() {
         }
       `}</style>
 
-      <div className="relative min-w-[900px] px-8 md:px-16">
+      <div
+        className="relative min-w-[900px] px-8 md:px-16 origin-left transition-transform duration-200"
+        style={{ transform: `scale(${zoom})` }}
+      >
         <div
           className={`absolute top-1/2 left-8 right-8 h-px bg-white/30 transition-all duration-1000 ease-out md:left-16 md:right-16 ${
             isVisible ? "opacity-100" : "opacity-0"

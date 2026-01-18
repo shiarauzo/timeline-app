@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useReducer, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useReducer,
+  useState,
+  type ReactNode,
+} from "react";
 import type { TimelineEvent } from "./types";
 
 type Action =
@@ -13,7 +19,6 @@ type Action =
 
 function sortEvents(events: TimelineEvent[]): TimelineEvent[] {
   return [...events].sort((a, b) => {
-    // Events without timestamps go to the end
     if (a.timestamp === undefined && b.timestamp === undefined) return 0;
     if (a.timestamp === undefined) return 1;
     if (b.timestamp === undefined) return -1;
@@ -48,12 +53,17 @@ interface TimelineContextValue {
   addEvent: (event: TimelineEvent) => void;
   updateEvent: (id: string, updates: Partial<TimelineEvent>) => void;
   reorderEvents: (events: TimelineEvent[]) => void;
+  zoom: number;
+  zoomIn: () => void;
+  zoomOut: () => void;
+  resetZoom: () => void;
 }
 
 const TimelineContext = createContext<TimelineContextValue | null>(null);
 
 export function TimelineProvider({ children }: { children: ReactNode }) {
   const [events, dispatch] = useReducer(timelineReducer, []);
+  const [zoom, setZoom] = useState(1);
 
   const addEvent = (event: TimelineEvent) => {
     dispatch({ type: "ADD_EVENT", payload: event });
@@ -67,9 +77,22 @@ export function TimelineProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "REORDER_EVENTS", payload: newEvents });
   };
 
+  const zoomIn = () => setZoom((z) => Math.min(z + 0.25, 3));
+  const zoomOut = () => setZoom((z) => Math.max(z - 0.25, 0.25));
+  const resetZoom = () => setZoom(1);
+
   return (
     <TimelineContext.Provider
-      value={{ events, addEvent, updateEvent, reorderEvents }}
+      value={{
+        events,
+        addEvent,
+        updateEvent,
+        reorderEvents,
+        zoom,
+        zoomIn,
+        zoomOut,
+        resetZoom,
+      }}
     >
       {children}
     </TimelineContext.Provider>

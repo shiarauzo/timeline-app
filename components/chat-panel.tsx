@@ -1,32 +1,32 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { useTimeline } from "@/lib/timeline-context"
-import { parseDate } from "@/lib/date-parser"
-import type { TimelineEvent } from "@/lib/types"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useTimeline } from "@/lib/timeline-context";
+import { parseDate } from "@/lib/date-parser";
+import type { TimelineEvent } from "@/lib/types";
 
 interface ChatMessage {
-  id: string
-  text: string
-  eventId: string
+  id: string;
+  text: string;
+  eventId: string;
 }
 
 export function ChatPanel() {
-  const [messages, setMessages] = useState<ChatMessage[]>([])
-  const [input, setInput] = useState("")
-  const [editingEventId, setEditingEventId] = useState<string | null>(null)
-  const [yearInput, setYearInput] = useState("")
-  const { events, addEvent, updateEvent } = useTimeline()
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState("");
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
+  const [yearInput, setYearInput] = useState("");
+  const { events, addEvent, updateEvent } = useTimeline();
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!input.trim()) return
+    e.preventDefault();
+    if (!input.trim()) return;
 
-    const parsed = parseDate(input)
-    const eventId = crypto.randomUUID()
+    const parsed = parseDate(input);
+    const eventId = crypto.randomUUID();
 
     const newEvent: TimelineEvent = {
       id: eventId,
@@ -35,32 +35,35 @@ export function ChatPanel() {
       description: input,
       timestamp: parsed?.timestamp,
       dateConfirmed: parsed !== null,
-    }
+    };
 
-    addEvent(newEvent)
-    setMessages((prev) => [...prev, { id: crypto.randomUUID(), text: input, eventId }])
-    setInput("")
-  }
+    addEvent(newEvent);
+    setMessages((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), text: input, eventId },
+    ]);
+    setInput("");
+  };
 
   const handleYearSubmit = (eventId: string) => {
-    const year = yearInput.trim()
-    if (!year.match(/^(19|20)\d{2}$/)) return
+    const year = yearInput.trim();
+    if (!year.match(/^(19|20)\d{2}$/)) return;
 
     updateEvent(eventId, {
       year,
       timestamp: new Date(parseInt(year), 0, 1).getTime(),
       dateConfirmed: true,
-    })
-    setEditingEventId(null)
-    setYearInput("")
-  }
+    });
+    setEditingEventId(null);
+    setYearInput("");
+  };
 
   const getEventForMessage = (eventId: string) => {
-    return events.find((e) => e.id === eventId)
-  }
+    return events.find((e) => e.id === eventId);
+  };
 
   return (
-    <div className="fixed bottom-4 right-4 w-80 rounded-lg border border-white/20 bg-black/80 backdrop-blur-sm">
+    <div className="fixed bottom-4 right-4 z-50 w-80 rounded-lg border border-white/20 bg-black/80 backdrop-blur-sm">
       <div className="p-3 border-b border-white/10">
         <span className="text-sm text-white/70">Add to timeline</span>
       </div>
@@ -68,8 +71,8 @@ export function ChatPanel() {
       <ScrollArea className="h-64 p-3">
         <div className="space-y-3">
           {messages.map((message) => {
-            const event = getEventForMessage(message.eventId)
-            const needsDate = event && !event.dateConfirmed
+            const event = getEventForMessage(message.eventId);
+            const needsDate = event && !event.dateConfirmed;
 
             return (
               <div key={message.id} className="text-sm">
@@ -84,8 +87,9 @@ export function ChatPanel() {
                           placeholder="YYYY"
                           className="h-7 w-20 text-xs bg-white/5 border-white/20"
                           onKeyDown={(e) => {
-                            if (e.key === "Enter") handleYearSubmit(message.eventId)
-                            if (e.key === "Escape") setEditingEventId(null)
+                            if (e.key === "Enter")
+                              handleYearSubmit(message.eventId);
+                            if (e.key === "Escape") setEditingEventId(null);
                           }}
                           autoFocus
                         />
@@ -101,8 +105,8 @@ export function ChatPanel() {
                     ) : (
                       <button
                         onClick={() => {
-                          setEditingEventId(message.eventId)
-                          setYearInput("")
+                          setEditingEventId(message.eventId);
+                          setYearInput("");
                         }}
                         className="text-xs text-blue-400 hover:text-blue-300"
                       >
@@ -115,12 +119,15 @@ export function ChatPanel() {
                   <span className="text-xs text-white/40">{event.year}</span>
                 )}
               </div>
-            )
+            );
           })}
         </div>
       </ScrollArea>
 
-      <form onSubmit={handleSubmit} className="flex gap-2 p-3 border-t border-white/10">
+      <form
+        onSubmit={handleSubmit}
+        className="flex gap-2 p-3 border-t border-white/10"
+      >
         <Input
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -132,5 +139,5 @@ export function ChatPanel() {
         </Button>
       </form>
     </div>
-  )
+  );
 }
