@@ -64,6 +64,10 @@ export function Timeline() {
     setDragOverId(null);
   };
 
+  if (events.length === 0) {
+    return null;
+  }
+
   return (
     <div
       className="relative w-full overflow-x-auto py-12"
