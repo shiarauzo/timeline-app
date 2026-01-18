@@ -22,6 +22,14 @@ export function Timeline() {
   // Selection state
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
+  // Context menu state
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    canvasX: number;
+    canvasY: number;
+  } | null>(null);
+
   // Editing state
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingField, setEditingField] = useState<
@@ -214,19 +222,56 @@ export function Timeline() {
     }
   };
 
+  // Handle right click context menu
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const canvasX = e.clientX / zoom - viewOffset.x;
+    const canvasY = e.clientY / zoom - viewOffset.y;
+    console.log("Context menu at:", {
+      clientX: e.clientX,
+      clientY: e.clientY,
+      canvasX,
+      canvasY,
+      zoom,
+      viewOffset,
+    });
+    setContextMenu({ x: e.clientX, y: e.clientY, canvasX, canvasY });
+  };
+
+  // Create new event at context menu position
+  const handleCreateEventAtPosition = () => {
+    if (!contextMenu) return;
+
+    const newEventId = crypto.randomUUID();
+    const newEvent: TimelineEvent = {
+      id: newEventId,
+      year: "?",
+      title: "New Event",
+      description: "",
+      timestamp: undefined,
+      dateConfirmed: false,
+      position: { x: contextMenu.canvasX, y: contextMenu.canvasY },
+    };
+
+    console.log("Creating event:", newEvent);
+    addEvent(newEvent);
+    setSelectedId(newEventId);
+    setContextMenu(null);
+  };
+
+  // Close context menu
+  const closeContextMenu = () => {
+    setContextMenu(null);
+  };
+
   if (events.length === 0) {
     return null;
   }
 
-  // Sort events by timestamp for connecting lines
+  // Sort events by timestamp for connecting lines (only events with timestamp)
   const sortedEvents = [...events]
-    .filter((e) => e.position)
-    .sort((a, b) => {
-      if (a.timestamp === undefined && b.timestamp === undefined) return 0;
-      if (a.timestamp === undefined) return 1;
-      if (b.timestamp === undefined) return -1;
-      return a.timestamp - b.timestamp;
-    });
+    .filter((e) => e.position && e.timestamp !== undefined)
+    .sort((a, b) => a.timestamp! - b.timestamp!);
 
   // Calculate canvas bounds
   const minX =
@@ -245,13 +290,17 @@ export function Timeline() {
   return (
     <div
       className={`fixed inset-0 overflow-hidden ${isPanning ? "cursor-grabbing" : "cursor-grab"}`}
-      onMouseDown={handleCanvasMouseDown}
+      onMouseDown={(e) => {
+        closeContextMenu();
+        handleCanvasMouseDown(e);
+      }}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={() => {
         setDraggingId(null);
         setIsPanning(false);
       }}
+      onContextMenu={handleContextMenu}
     >
       <div
         className="absolute"
@@ -420,6 +469,23 @@ export function Timeline() {
           );
         })}
       </div>
+
+      {/* Context Menu */}
+      {contextMenu && (
+        <div
+          className="fixed z-50 bg-black/90 border border-white/20 rounded-lg shadow-xl py-1 min-w-[150px]"
+          style={{ left: contextMenu.x, top: contextMenu.y }}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={handleCreateEventAtPosition}
+            className="w-full px-4 py-2 text-left text-sm text-white hover:bg-white/10 transition-colors flex items-center gap-2"
+          >
+            <span className="text-blue-400">+</span>
+            New Event
+          </button>
+        </div>
+      )}
     </div>
   );
 }
