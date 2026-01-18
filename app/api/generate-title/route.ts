@@ -16,14 +16,29 @@ export async function POST(req: Request) {
     messages: [
       {
         role: "system",
-        content:
-          "Genera un título conciso (máximo 8 palabras) que resuma el siguiente evento. NO incluyas años, fechas ni números de años en el título. Responde solo con el título, sin comillas ni puntuación final.",
+        content: `Analiza el siguiente evento y responde SOLO con un JSON válido (sin markdown, sin backticks):
+{"title": "título conciso máximo 8 palabras SIN fechas ni años", "year": "año en formato YYYY o null si no hay fecha"}
+
+Ejemplos:
+- "El hombre llegó a la luna en 1969" → {"title": "El hombre llegó a la luna", "year": "1969"}
+- "Inventaron la rueda" → {"title": "Invención de la rueda", "year": null}`,
       },
       { role: "user", content: description },
     ],
   });
 
-  const title = completion.choices[0].message.content?.trim() ?? "";
+  const content = completion.choices[0].message.content?.trim() ?? "{}";
 
-  return Response.json({ title });
+  try {
+    const parsed = JSON.parse(content);
+    return Response.json({
+      title: parsed.title || description.slice(0, 50),
+      year: parsed.year || null,
+    });
+  } catch {
+    return Response.json({
+      title: description.slice(0, 50),
+      year: null,
+    });
+  }
 }

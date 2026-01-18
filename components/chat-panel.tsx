@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTimeline } from "@/lib/timeline-context";
-import { parseDate } from "@/lib/date-parser";
 import type { TimelineEvent } from "@/lib/types";
 
 interface ChatMessage {
@@ -21,7 +20,9 @@ export function ChatPanel() {
   const [yearInput, setYearInput] = useState("");
   const { events, addEvent, updateEvent } = useTimeline();
 
-  const generateTitle = async (description: string): Promise<string> => {
+  const generateEventData = async (
+    description: string,
+  ): Promise<{ title: string; year: string | null }> => {
     try {
       const res = await fetch("/api/generate-title", {
         method: "POST",
@@ -30,11 +31,18 @@ export function ChatPanel() {
       });
       if (!res.ok) throw new Error("Failed to generate title");
       const data = await res.json();
-      return data.title || description.slice(0, 50);
+      return {
+        title: data.title || description.slice(0, 50),
+        year: data.year || null,
+      };
     } catch {
-      return description.length > 50
-        ? description.slice(0, 50) + "..."
-        : description;
+      return {
+        title:
+          description.length > 50
+            ? description.slice(0, 50) + "..."
+            : description,
+        year: null,
+      };
     }
   };
 
@@ -42,17 +50,16 @@ export function ChatPanel() {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const parsed = parseDate(input);
     const eventId = crypto.randomUUID();
     const description = input;
 
     const newEvent: TimelineEvent = {
       id: eventId,
-      year: parsed?.year ?? "",
-      title: "Generando título...",
+      year: "",
+      title: "Generando...",
       description,
-      timestamp: parsed?.timestamp,
-      dateConfirmed: parsed !== null,
+      timestamp: undefined,
+      dateConfirmed: false,
     };
 
     addEvent(newEvent);
@@ -62,8 +69,13 @@ export function ChatPanel() {
     ]);
     setInput("");
 
-    const title = await generateTitle(description);
-    updateEvent(eventId, { title });
+    const { title, year } = await generateEventData(description);
+    updateEvent(eventId, {
+      title,
+      year: year ?? "",
+      timestamp: year ? new Date(parseInt(year), 0, 1).getTime() : undefined,
+      dateConfirmed: year !== null,
+    });
   };
 
   const handleYearSubmit = (eventId: string) => {

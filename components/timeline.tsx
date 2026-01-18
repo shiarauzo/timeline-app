@@ -83,86 +83,89 @@ export function Timeline() {
         className="relative min-w-[900px] px-8 md:px-16 origin-left transition-transform duration-200"
         style={{ transform: `scale(${zoom})` }}
       >
-        {events.length >= 2 && (
+        <div className="relative flex justify-center">
           <div
-            className={`absolute top-1/2 left-8 right-8 h-px bg-white/30 transition-all duration-1000 ease-out md:left-16 md:right-16 ${
-              isVisible ? "opacity-100" : "opacity-0"
-            }`}
-            style={{ transform: "translateY(-50%)" }}
-          />
-        )}
-
-        <div
-          className={`relative flex ${events.length === 1 ? "justify-center" : "justify-between"}`}
-        >
-          {events.map((event, index) => (
-            <div
-              key={event.id}
-              draggable
-              onDragStart={(e) => handleDragStart(e, event.id)}
-              onDragEnd={handleDragEnd}
-              onDragOver={(e) => handleDragOver(e, event.id)}
-              onDragLeave={handleDragLeave}
-              onDrop={(e) => handleDrop(e, event.id)}
-              className={`relative flex flex-col items-center transition-all duration-300 ease-out cursor-grab active:cursor-grabbing select-none ${
-                isVisible
-                  ? "translate-y-0 opacity-100"
-                  : "translate-y-8 opacity-0"
-              } ${draggedId === event.id ? "opacity-50" : ""} ${dragOverId === event.id ? "scale-105" : ""}`}
-              style={{
-                transitionDelay: draggedId ? "0ms" : `${300 + index * 200}ms`,
-              }}
-            >
-              {index % 2 === 0 && (
-                <div
-                  className={`mb-8 text-center transition-all duration-200 ${
-                    dragOverId === event.id
-                      ? "bg-white/10 rounded-lg p-2 -m-2"
-                      : ""
-                  }`}
-                >
-                  <span className="mb-2 block text-lg font-bold text-white">
-                    {event.year || "?"}
-                  </span>
-                  <h3 className="mb-1 text-sm font-semibold text-white md:text-base">
-                    {event.title}
-                  </h3>
-                  <p className="max-w-28 text-xs text-white/50 md:max-w-36 md:text-sm">
-                    {event.description}
-                  </p>
-                </div>
-              )}
-
+            className={`relative flex items-center gap-16 ${events.length === 1 ? "" : "px-8"}`}
+          >
+            {events.length >= 2 && (
               <div
-                className={`relative z-10 h-3 w-px bg-white transition-all duration-500 ${
+                className={`absolute top-1/2 left-0 right-0 h-px bg-white/30 transition-all duration-1000 ease-out ${
                   isVisible ? "opacity-100" : "opacity-0"
                 }`}
-                style={{
-                  transitionDelay: draggedId ? "0ms" : `${500 + index * 200}ms`,
-                }}
+                style={{ transform: "translateY(-50%)" }}
               />
+            )}
+            {events.map((event, index) => (
+              <div
+                key={event.id}
+                draggable
+                onDragStart={(e) => handleDragStart(e, event.id)}
+                onDragEnd={handleDragEnd}
+                onDragOver={(e) => handleDragOver(e, event.id)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, event.id)}
+                className={`relative flex flex-col items-center transition-all duration-300 ease-out cursor-grab active:cursor-grabbing select-none ${
+                  isVisible
+                    ? "translate-y-0 opacity-100"
+                    : "translate-y-8 opacity-0"
+                } ${draggedId === event.id ? "opacity-50" : ""} ${dragOverId === event.id ? "scale-105" : ""}`}
+                style={{
+                  transitionDelay: draggedId ? "0ms" : `${300 + index * 200}ms`,
+                }}
+              >
+                {index % 2 === 0 && (
+                  <div
+                    className={`mb-8 text-center transition-all duration-200 ${
+                      dragOverId === event.id
+                        ? "bg-white/10 rounded-lg p-2 -m-2"
+                        : ""
+                    }`}
+                  >
+                    <span className="mb-2 block text-lg font-bold text-white">
+                      {event.year || "?"}
+                    </span>
+                    <h3 className="mb-1 text-sm font-semibold text-white md:text-base">
+                      {event.title}
+                    </h3>
+                    <p className="max-w-28 text-xs text-white/50 md:max-w-36 md:text-sm">
+                      {event.description}
+                    </p>
+                  </div>
+                )}
 
-              {index % 2 !== 0 && (
                 <div
-                  className={`mt-8 text-center transition-all duration-200 ${
-                    dragOverId === event.id
-                      ? "bg-white/10 rounded-lg p-2 -m-2"
-                      : ""
+                  className={`relative z-10 h-3 w-px bg-white transition-all duration-500 ${
+                    isVisible ? "opacity-100" : "opacity-0"
                   }`}
-                >
-                  <span className="mb-2 block text-lg font-bold text-white">
-                    {event.year || "?"}
-                  </span>
-                  <h3 className="mb-1 text-sm font-semibold text-white md:text-base">
-                    {event.title}
-                  </h3>
-                  <p className="max-w-28 text-xs text-white/50 md:max-w-36 md:text-sm">
-                    {event.description}
-                  </p>
-                </div>
-              )}
-            </div>
-          ))}
+                  style={{
+                    transitionDelay: draggedId
+                      ? "0ms"
+                      : `${500 + index * 200}ms`,
+                  }}
+                />
+
+                {index % 2 !== 0 && (
+                  <div
+                    className={`mt-8 text-center transition-all duration-200 ${
+                      dragOverId === event.id
+                        ? "bg-white/10 rounded-lg p-2 -m-2"
+                        : ""
+                    }`}
+                  >
+                    <span className="mb-2 block text-lg font-bold text-white">
+                      {event.year || "?"}
+                    </span>
+                    <h3 className="mb-1 text-sm font-semibold text-white md:text-base">
+                      {event.title}
+                    </h3>
+                    <p className="max-w-28 text-xs text-white/50 md:max-w-36 md:text-sm">
+                      {event.description}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
