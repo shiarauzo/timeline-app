@@ -17,7 +17,7 @@ export async function POST(req: Request) {
       {
         role: "system",
         content:
-          "Genera un título conciso (máximo 8 palabras) que resuma el siguiente evento. Responde solo con el título, sin comillas ni puntuación final.",
+          "Genera un título conciso (máximo 8 palabras) que resuma el siguiente evento. NO incluyas años, fechas ni números de años en el título. Responde solo con el título, sin comillas ni puntuación final.",
       },
       { role: "user", content: description },
     ],

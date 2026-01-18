@@ -83,14 +83,18 @@ export function Timeline() {
         className="relative min-w-[900px] px-8 md:px-16 origin-left transition-transform duration-200"
         style={{ transform: `scale(${zoom})` }}
       >
-        <div
-          className={`absolute top-1/2 left-8 right-8 h-px bg-white/30 transition-all duration-1000 ease-out md:left-16 md:right-16 ${
-            isVisible ? "opacity-100" : "opacity-0"
-          }`}
-          style={{ transform: "translateY(-50%)" }}
-        />
+        {events.length >= 2 && (
+          <div
+            className={`absolute top-1/2 left-8 right-8 h-px bg-white/30 transition-all duration-1000 ease-out md:left-16 md:right-16 ${
+              isVisible ? "opacity-100" : "opacity-0"
+            }`}
+            style={{ transform: "translateY(-50%)" }}
+          />
+        )}
 
-        <div className="relative flex justify-between">
+        <div
+          className={`relative flex ${events.length === 1 ? "justify-center" : "justify-between"}`}
+        >
           {events.map((event, index) => (
             <div
               key={event.id}
