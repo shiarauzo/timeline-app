@@ -1,6 +1,7 @@
 import { Timeline } from "@/components/timeline";
 import { ChatPanel } from "@/components/chat-panel";
 import { ZoomControls } from "@/components/zoom-controls";
+import { TimelineHeader } from "@/components/timeline-header";
 import { TimelineProvider } from "@/lib/timeline-context";
 
 export default function Page() {
@@ -15,10 +16,9 @@ export default function Page() {
           }}
         />
 
+        <TimelineHeader />
+
         <div className="relative z-10 w-full max-w-6xl">
-          <h1 className="mb-16 text-center text-3xl font-bold tracking-tight text-white md:text-4xl">
-            Our Journey
-          </h1>
           <Timeline />
         </div>
 

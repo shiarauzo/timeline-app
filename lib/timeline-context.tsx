@@ -57,6 +57,8 @@ interface TimelineContextValue {
   zoomIn: () => void;
   zoomOut: () => void;
   resetZoom: () => void;
+  title: string;
+  setTitle: (title: string) => void;
 }
 
 const TimelineContext = createContext<TimelineContextValue | null>(null);
@@ -64,6 +66,7 @@ const TimelineContext = createContext<TimelineContextValue | null>(null);
 export function TimelineProvider({ children }: { children: ReactNode }) {
   const [events, dispatch] = useReducer(timelineReducer, []);
   const [zoom, setZoom] = useState(1);
+  const [title, setTitle] = useState("My Timeline");
 
   const addEvent = (event: TimelineEvent) => {
     dispatch({ type: "ADD_EVENT", payload: event });
@@ -92,6 +95,8 @@ export function TimelineProvider({ children }: { children: ReactNode }) {
         zoomIn,
         zoomOut,
         resetZoom,
+        title,
+        setTitle,
       }}
     >
       {children}
