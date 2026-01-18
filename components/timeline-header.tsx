@@ -15,7 +15,7 @@ import { useTimeline } from "@/lib/timeline-context";
 const MAX_TITLE_LENGTH = 50;
 
 export function TimelineHeader() {
-  const { title, setTitle } = useTimeline();
+  const { title, setTitle, clearAll } = useTimeline();
   const [isOpen, setIsOpen] = useState(false);
   const [editValue, setEditValue] = useState(title);
 
@@ -52,7 +52,8 @@ export function TimelineHeader() {
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7 text-white/50 hover:text-white hover:bg-white/10"
+            className="h-7 w-7 text-white/50 hover:text-red-400 hover:bg-white/10"
+            onClick={() => clearAll()}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -95,10 +96,17 @@ export function TimelineHeader() {
             </p>
           </div>
           <div className="flex justify-end gap-2 mt-4">
-            <Button variant="ghost" onClick={handleCancel} className="text-white/70 hover:text-white hover:bg-white/10">
+            <Button
+              variant="ghost"
+              onClick={handleCancel}
+              className="text-white/70 hover:text-white hover:bg-white/10"
+            >
               Cancel
             </Button>
-            <Button onClick={handleSave} className="bg-orange-500 hover:bg-orange-600 text-white">
+            <Button
+              onClick={handleSave}
+              className="bg-orange-500 hover:bg-orange-600 text-white"
+            >
               Save
             </Button>
           </div>

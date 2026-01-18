@@ -141,11 +141,54 @@ export function Timeline() {
     }
   };
 
-  // Add new event next to selected
-  const handleAddEvent = async (e: React.MouseEvent) => {
+  // Check if a position is occupied by another event
+  const isPositionOccupied = (x: number, y: number, excludeId?: string) => {
+    const threshold = 120; // Minimum distance between events
+    return events.some((ev) => {
+      if (ev.id === excludeId || !ev.position) return false;
+      const dx = Math.abs(ev.position.x - x);
+      const dy = Math.abs(ev.position.y - y);
+      return dx < threshold && dy < threshold;
+    });
+  };
+
+  // Find best available position for new event
+  const findAvailablePosition = (baseX: number, baseY: number) => {
+    const offset = 200;
+    // Priority: right, bottom, top, bottomRight, topRight, left, bottomLeft, topLeft
+    const directions = [
+      { x: offset, y: 0 }, // right
+      { x: 0, y: offset }, // bottom
+      { x: 0, y: -offset }, // top
+      { x: offset, y: offset }, // bottomRight
+      { x: offset, y: -offset }, // topRight
+      { x: -offset, y: 0 }, // left
+      { x: -offset, y: offset }, // bottomLeft
+      { x: -offset, y: -offset }, // topLeft
+    ];
+
+    for (const dir of directions) {
+      const newX = baseX + dir.x;
+      const newY = baseY + dir.y;
+      if (!isPositionOccupied(newX, newY)) {
+        return { x: newX, y: newY };
+      }
+    }
+
+    // If all positions occupied, place further to the right
+    return { x: baseX + offset * 2, y: baseY };
+  };
+
+  // Add new event next to a specific event
+  const handleAddEvent = (e: React.MouseEvent, sourceEventId: string) => {
     e.stopPropagation();
-    const selectedEvent = events.find((ev) => ev.id === selectedId);
-    if (!selectedEvent?.position) return;
+    const sourceEvent = events.find((ev) => ev.id === sourceEventId);
+    if (!sourceEvent?.position) return;
+
+    const newPosition = findAvailablePosition(
+      sourceEvent.position.x,
+      sourceEvent.position.y,
+    );
 
     const newEventId = crypto.randomUUID();
     const newEvent: TimelineEvent = {
@@ -155,10 +198,7 @@ export function Timeline() {
       description: "Click to edit",
       timestamp: undefined,
       dateConfirmed: false,
-      position: {
-        x: selectedEvent.position.x + 200,
-        y: selectedEvent.position.y,
-      },
+      position: newPosition,
     };
 
     addEvent(newEvent);
@@ -357,12 +397,12 @@ export function Timeline() {
 
               {/* Action buttons - show when selected */}
               {isSelected && !isEditing && (
-                <>
+                <div className="absolute -right-3 top-1/2 translate-x-full -translate-y-1/2 flex gap-2">
                   {/* Add button */}
                   <button
                     onMouseDown={(e) => e.stopPropagation()}
-                    onClick={handleAddEvent}
-                    className="absolute -right-4 top-1/3 -translate-y-1/2 translate-x-full w-8 h-8 rounded-full bg-blue-500 hover:bg-blue-400 text-white flex items-center justify-center text-xl font-bold transition-colors shadow-lg"
+                    onClick={(e) => handleAddEvent(e, event.id)}
+                    className="w-7 h-7 rounded-full bg-blue-500 hover:bg-blue-400 text-white flex items-center justify-center text-lg font-bold transition-colors shadow-lg"
                   >
                     +
                   </button>
@@ -370,11 +410,11 @@ export function Timeline() {
                   <button
                     onMouseDown={(e) => e.stopPropagation()}
                     onClick={handleDeleteEvent}
-                    className="absolute -right-4 top-2/3 -translate-y-1/2 translate-x-full w-8 h-8 rounded-full bg-red-500 hover:bg-red-400 text-white flex items-center justify-center text-lg font-bold transition-colors shadow-lg"
+                    className="w-7 h-7 rounded-full bg-red-500 hover:bg-red-400 text-white flex items-center justify-center text-lg font-bold transition-colors shadow-lg"
                   >
                     ×
                   </button>
-                </>
+                </div>
               )}
             </div>
           );
