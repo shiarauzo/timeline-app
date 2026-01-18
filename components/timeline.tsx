@@ -7,7 +7,7 @@ import type { TimelineEvent } from "@/lib/types";
 
 export function Timeline() {
   const [isVisible, setIsVisible] = useState(false);
-  const { events, updateEvent, addEvent, zoom } = useTimeline();
+  const { events, updateEvent, addEvent, deleteEvent, zoom } = useTimeline();
 
   // Pan state
   const [isPanning, setIsPanning] = useState(false);
@@ -163,6 +163,15 @@ export function Timeline() {
 
     addEvent(newEvent);
     setSelectedId(newEventId);
+  };
+
+  // Delete selected event
+  const handleDeleteEvent = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (selectedId) {
+      deleteEvent(selectedId);
+      setSelectedId(null);
+    }
   };
 
   if (events.length === 0) {
@@ -346,15 +355,26 @@ export function Timeline() {
                 </div>
               </div>
 
-              {/* Add button - shows when selected */}
+              {/* Action buttons - show when selected */}
               {isSelected && !isEditing && (
-                <button
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onClick={handleAddEvent}
-                  className="absolute -right-4 top-1/2 -translate-y-1/2 translate-x-full w-8 h-8 rounded-full bg-blue-500 hover:bg-blue-400 text-white flex items-center justify-center text-xl font-bold transition-colors shadow-lg"
-                >
-                  +
-                </button>
+                <>
+                  {/* Add button */}
+                  <button
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onClick={handleAddEvent}
+                    className="absolute -right-4 top-1/3 -translate-y-1/2 translate-x-full w-8 h-8 rounded-full bg-blue-500 hover:bg-blue-400 text-white flex items-center justify-center text-xl font-bold transition-colors shadow-lg"
+                  >
+                    +
+                  </button>
+                  {/* Delete button */}
+                  <button
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onClick={handleDeleteEvent}
+                    className="absolute -right-4 top-2/3 -translate-y-1/2 translate-x-full w-8 h-8 rounded-full bg-red-500 hover:bg-red-400 text-white flex items-center justify-center text-lg font-bold transition-colors shadow-lg"
+                  >
+                    ×
+                  </button>
+                </>
               )}
             </div>
           );

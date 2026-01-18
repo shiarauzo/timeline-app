@@ -15,6 +15,7 @@ type Action =
       type: "UPDATE_EVENT";
       payload: { id: string; updates: Partial<TimelineEvent> };
     }
+  | { type: "DELETE_EVENT"; payload: string }
   | { type: "REORDER_EVENTS"; payload: TimelineEvent[] };
 
 function sortEvents(events: TimelineEvent[]): TimelineEvent[] {
@@ -41,6 +42,8 @@ function timelineReducer(
       );
       return sortEvents(updated);
     }
+    case "DELETE_EVENT":
+      return state.filter((event) => event.id !== action.payload);
     case "REORDER_EVENTS":
       return action.payload;
     default:
@@ -52,6 +55,7 @@ interface TimelineContextValue {
   events: TimelineEvent[];
   addEvent: (event: TimelineEvent) => void;
   updateEvent: (id: string, updates: Partial<TimelineEvent>) => void;
+  deleteEvent: (id: string) => void;
   reorderEvents: (events: TimelineEvent[]) => void;
   zoom: number;
   zoomIn: () => void;
@@ -76,6 +80,10 @@ export function TimelineProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "UPDATE_EVENT", payload: { id, updates } });
   };
 
+  const deleteEvent = (id: string) => {
+    dispatch({ type: "DELETE_EVENT", payload: id });
+  };
+
   const reorderEvents = (newEvents: TimelineEvent[]) => {
     dispatch({ type: "REORDER_EVENTS", payload: newEvents });
   };
@@ -90,6 +98,7 @@ export function TimelineProvider({ children }: { children: ReactNode }) {
         events,
         addEvent,
         updateEvent,
+        deleteEvent,
         reorderEvents,
         zoom,
         zoomIn,
