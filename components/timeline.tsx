@@ -268,10 +268,11 @@ export function Timeline() {
     return null;
   }
 
-  // Sort events by timestamp for connecting lines (only events with timestamp)
+  // Sort events by X position for connecting lines (horizontal connection)
+  // This connects events created from the chat panel in order
   const sortedEvents = [...events]
-    .filter((e) => e.position && e.timestamp !== undefined)
-    .sort((a, b) => a.timestamp! - b.timestamp!);
+    .filter((e) => e.position)
+    .sort((a, b) => a.position!.x - b.position!.x);
 
   // Calculate canvas bounds
   const minX =
